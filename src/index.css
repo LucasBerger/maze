@@ -11,3 +11,20 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.board {
+  display: grid;
+  width: 500px;
+  height: 500px;
+  position: relative;
+}
+
+.obstacle-W {
+  background-color: red
+}
+
+.ball {
+  background-color: blue;
+  border-radius: 50%;
+  position: absolute;
+}
