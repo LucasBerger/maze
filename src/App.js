@@ -1,26 +1,43 @@
 import "./App.css";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Game } from "./game/game";
 
+// const stage = `
+// ___W_W
+// ___WWW
+// W____W
+// W__W_W
+// W__WWW
+// WWWWWW
+// `;
+
 const stage = `
-___W_W
-___WWW
-W____W
-W__W_W
-W__WWW
+W__B__
+W_____
+W_____
+W_____
+W_____
 WWWWWW
 `;
 
 const width = 6;
 const height = 6;
 
+const globalGame = new Game(width, height, stage);
+
 function App() {
-  const [game, setGame] = useState(new Game(width, height, stage));
+  const game = useRef(globalGame);
+  const [gameState, setGameState] = useState({
+    ball: { x: 0, y: 0 },
+    board: { obstacles: [] },
+    ended: false,
+  });
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setGame(game.update(0.02));
-    }, 20);
+      game.current.update(0.01);
+      setGameState(game.current.getState());
+    }, 10);
 
     return () => {
       clearInterval(interval);
@@ -36,17 +53,17 @@ function App() {
           gridTemplateRows: ((100.0 / height).toString() + "%").repeat(height),
         }}
       >
-        {game.ball.x}, {game.ball.y}
+        {gameState.ball.x}, {gameState.ball.y}
         <div
           className="ball"
           style={{
-            left: (((game.ball.x - 0.5) * 100.0) / width).toString() + "%",
-            top: (((game.ball.y - 0.5) * 100.0) / height).toString() + "%",
+            left: (((gameState.ball.x - 0.5) * 100.0) / width).toString() + "%",
+            top: (((gameState.ball.y - 0.5) * 100.0) / height).toString() + "%",
             width: (100.0 / width).toString() + "%",
             height: (100.0 / height).toString() + "%",
           }}
         ></div>
-        {game.board.obstacles.map((obstacle) => {
+        {gameState.board.obstacles.map((obstacle) => {
           return (
             <div
               key={obstacle.x + ", " + obstacle.y}

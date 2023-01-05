@@ -4,15 +4,13 @@ export class Game {
   ended = false;
 
   constructor(width, height, stage) {
-    this.ball = new Ball(0, 0);
+    const ballPos = stage.replaceAll("\n", "").indexOf("B");
+    if (ballPos !== -1) {
+      this.ball = new Ball(ballPos % width, Math.floor(ballPos / width));
+    } else {
+      this.ball = new Ball(0, 0);
+    }
     this.board = new Board(width, height, stage);
-  }
-
-  static fromBallandBoard(ball, board) {
-    const game = new Game(0, 0, "");
-    game.ball = ball;
-    game.board = board;
-    return game;
   }
 
   update(dt) {
@@ -21,7 +19,14 @@ export class Game {
     if (this.ball.gone) {
       this.ended = true;
     }
-    return Game.fromBallandBoard(this.ball, this.board);
+  }
+
+  getState() {
+    return {
+      ball: this.ball.getState(),
+      board: this.board.getState(),
+      ended: this.ended,
+    };
   }
 }
 
@@ -30,9 +35,14 @@ export class Ball {
   y = 0;
   vx = 0;
   vy = 0;
-  ax = 0;
-  ay = 0;
+  ax = -10;
+  ay = 5;
   gone = false;
+
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+  }
 
   update(dt) {
     this.vx = this.vx + dt * this.ax;
@@ -40,12 +50,21 @@ export class Ball {
     this.x = this.x + dt * this.vx;
     this.y = this.y + dt * this.vy;
   }
+
+  getState() {
+    return {
+      x: this.x,
+      y: this.y,
+    };
+  }
 }
 
 export class Obstacle {
   x = 0;
   y = 0;
   static symbol = "";
+  unhandled = true;
+  stage = 0;
 
   constructor(x, y) {
     this.x = x;
@@ -61,6 +80,8 @@ export class Obstacle {
       'abstract export class function "interact should be implemented"'
     );
   }
+
+  static reset() {}
 }
 
 export class Hole extends Obstacle {
@@ -71,15 +92,7 @@ export class Hole extends Obstacle {
 
 export class Wall extends Obstacle {
   static symbol = "W";
-
-  /**
-   * interact with a ball
-   * @param {Ball} ball - The ball to interact with.
-   */
-  interact(ball) {
-    if (this.intersects(ball)) {
-    }
-  }
+  static hit = false;
 
   get centerX() {
     return this.x + 1 / 2;
@@ -89,23 +102,53 @@ export class Wall extends Obstacle {
     return this.y + 1 / 2;
   }
 
+  static reset() {
+    Wall.hit = false;
+  }
+
   /**
    * check intersect with a ball
    * @param {Ball} ball - The ball to interact with.
    */
-  intersects(ball) {
-    const normal = this.checkNormal(ball);
+  interact(ball) {
+    if (Wall.hit) {
+      return true;
+    }
+    let normal;
+    switch (this.stage) {
+      case 0:
+        normal = this.checkRectNormal(ball);
+        if (normal) {
+          if (normal.x !== 0) {
+            ball.x = this.centerX + normal.x * 1;
+          } else {
+            ball.y = this.centerY + normal.y * 1;
+          }
+        }
+        break;
+      case 1:
+        normal = this.checkCornerNormal(ball);
+        break;
+
+      default:
+        return true;
+    }
     if (normal) {
       const scalar = normal.x * ball.vx + normal.y * ball.vy;
-
-      if (scalar > 0) {
-        ball.vx = ball.vx - 2 * scalar * normal.x;
-        ball.vy = ball.vy - 2 * scalar * normal.y;
+      if (scalar < 0) {
+        ball.vx = 1 * (ball.vx - 2 * scalar * normal.x);
+        ball.vy = 1 * (ball.vy - 2 * scalar * normal.y);
       }
+
+      Wall.hit = true;
+
+      return true;
+    } else {
+      return false;
     }
   }
 
-  checkNormal(ball) {
+  checkCornerNormal(ball) {
     const dist = { x: 0, y: 0 };
 
     dist.x = Math.abs(ball.x - this.centerX);
@@ -116,21 +159,6 @@ export class Wall extends Obstacle {
     }
     if (dist.y > 1) {
       return false;
-    }
-
-    if (dist.x <= 1 / 2) {
-      if (ball.x - this.centerX > 0) {
-        return { x: -1, y: 0 };
-      } else {
-        return { x: 1, y: 0 };
-      }
-    }
-    if (dist.y <= 1 / 2) {
-      if (ball.y - this.centerY > 0) {
-        return { x: 0, y: -1 };
-      } else {
-        return { x: 0, y: 1 };
-      }
     }
 
     const test = [
@@ -155,6 +183,51 @@ export class Wall extends Obstacle {
         return { x: dir.x / length, y: dir.y / length };
       } else {
         return false;
+      }
+    }
+  }
+  checkRectNormal(ball) {
+    const dist = { x: 0, y: 0 };
+
+    dist.x = Math.abs(ball.x - this.centerX);
+    dist.y = Math.abs(ball.y - this.centerY);
+
+    if (dist.x > 1) {
+      return false;
+    }
+    if (dist.y > 1) {
+      return false;
+    }
+
+    if (dist.y > dist.x) {
+      if (dist.y <= 1) {
+        if (ball.y - this.centerY > 0) {
+          return { x: 0, y: 1 };
+        } else {
+          return { x: 0, y: -1 };
+        }
+      }
+      if (dist.x <= 1) {
+        if (ball.x - this.centerX > 0) {
+          return { x: 1, y: 0 };
+        } else {
+          return { x: -1, y: 0 };
+        }
+      }
+    } else {
+      if (dist.x <= 1) {
+        if (ball.x - this.centerX > 0) {
+          return { x: 1, y: 0 };
+        } else {
+          return { x: -1, y: 0 };
+        }
+      }
+      if (dist.y <= 1) {
+        if (ball.y - this.centerY > 0) {
+          return { x: 0, y: 1 };
+        } else {
+          return { x: 0, y: -1 };
+        }
       }
     }
   }
@@ -206,9 +279,37 @@ export class Board {
     }
   }
 
+  getState() {
+    return {
+      obstacles: this.obstacles,
+    };
+  }
+
   interact(ball) {
+    for (const obstacleTypes of Object.keys(validObstacles)) {
+      validObstacles[obstacleTypes].reset();
+    }
+
     for (const obstacle of this.obstacles) {
-      obstacle.interact(ball);
+      obstacle.unhandled = true;
+      obstacle.stage = 0;
+    }
+    while (
+      this.obstacles.some((value) => value.unhandled && value.stage < 10)
+    ) {
+      for (const obstacle of this.obstacles
+        .filter((value) => value.unhandled)
+        .sort((a, b) => distSq(ball, a) - distSq(ball, b))) {
+        obstacle.unhandled = !obstacle.interact(ball);
+        obstacle.stage++;
+      }
     }
   }
 }
+
+const distSq = (ball, obstacle) => {
+  const x = ball.x - obstacle.x;
+  const y = ball.y - obstacle.y;
+
+  return x * x + y * y;
+};
