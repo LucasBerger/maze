@@ -6,11 +6,19 @@ export class Game {
   constructor(width, height, stage) {
     const ballPos = stage.replaceAll("\n", "").indexOf("B");
     if (ballPos !== -1) {
-      this.ball = new Ball(ballPos % width, Math.floor(ballPos / width));
+      this.ball = new Ball(
+        (ballPos % width) + 0.5,
+        Math.floor(ballPos / width) + 0.5
+      );
     } else {
-      this.ball = new Ball(0, 0);
+      this.ball = new Ball(0.5, 0.5);
     }
     this.board = new Board(width, height, stage);
+  }
+
+  changeControl(x, y) {
+    this.ball.ax = x;
+    this.ball.ay = y;
   }
 
   update(dt) {
@@ -35,8 +43,8 @@ export class Ball {
   y = 0;
   vx = 0;
   vy = 0;
-  ax = -10;
-  ay = 5;
+  ax = 0;
+  ay = 0;
   gone = false;
 
   constructor(x, y) {
@@ -45,8 +53,8 @@ export class Ball {
   }
 
   update(dt) {
-    this.vx = this.vx + dt * this.ax;
-    this.vy = this.vy + dt * this.ay;
+    this.vx = this.vx * 0.999 + dt * this.ax;
+    this.vy = this.vy * 0.999 + dt * this.ay;
     this.x = this.x + dt * this.vx;
     this.y = this.y + dt * this.vy;
   }
@@ -136,8 +144,8 @@ export class Wall extends Obstacle {
     if (normal) {
       const scalar = normal.x * ball.vx + normal.y * ball.vy;
       if (scalar < 0) {
-        ball.vx = 1 * (ball.vx - 2 * scalar * normal.x);
-        ball.vy = 1 * (ball.vy - 2 * scalar * normal.y);
+        ball.vx = 0.5 * (ball.vx - 2 * scalar * normal.x);
+        ball.vy = 0.5 * (ball.vy - 2 * scalar * normal.y);
       }
 
       Wall.hit = true;
