@@ -4,27 +4,18 @@ import { Game } from "./game/game";
 
 const stage = `
 WWWWWWWWWWWW
-WB_W_____WWW
+WB_W____HWWW
+W__W__H____W
 W__W_______W
-W__W_______W
-W__W__WWW__W
-W__W___W___W
+W_HW_HWWW__W
+W__W___WH__W
 W__W___W__WW
-W__WWWWW___W
+WH_WWWWW___W
 W__________W
-W__________W
-W__W__W____W
+W___H______W
+W__W__WHHHHW
 WWWWWWWWWWWW
 `;
-
-// const stage = `
-// W__B__
-// W_____
-// W_____
-// W_____
-// W_____
-// WWWWWW
-// `;
 
 const width = 12;
 const height = 12;
@@ -102,9 +93,14 @@ function App() {
   }, []);
 
   useEffect(() => {
-    console.log(control);
     game.current.changeControl(control.x, control.y);
   }, [control, game]);
+
+  useEffect(() => {
+    if (gameState.ended) {
+      game.current = new Game(width, height, stage);
+    }
+  }, [gameState]);
 
   return (
     <div className="App">
@@ -115,7 +111,6 @@ function App() {
           gridTemplateRows: ((100.0 / height).toString() + "%").repeat(height),
         }}
       >
-        {gameState.ball.x}, {gameState.ball.y}
         <div
           className="ball"
           style={{
