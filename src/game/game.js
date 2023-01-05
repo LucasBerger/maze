@@ -127,6 +127,7 @@ export class Wall extends Obstacle {
       case 0:
         normal = this.checkRectNormal(ball);
         if (normal) {
+          console.log("rect");
           if (normal.x !== 0) {
             ball.x = this.centerX + normal.x * 1;
           } else {
@@ -208,14 +209,14 @@ export class Wall extends Obstacle {
     }
 
     if (dist.y > dist.x) {
-      if (dist.y <= 1) {
+      if (dist.y <= 1 && dist.x < 1 / 2) {
         if (ball.y - this.centerY > 0) {
           return { x: 0, y: 1 };
         } else {
           return { x: 0, y: -1 };
         }
       }
-      if (dist.x <= 1) {
+      if (dist.x <= 1 && dist.y < 1 / 2) {
         if (ball.x - this.centerX > 0) {
           return { x: 1, y: 0 };
         } else {
@@ -223,14 +224,14 @@ export class Wall extends Obstacle {
         }
       }
     } else {
-      if (dist.x <= 1) {
+      if (dist.x <= 1 && dist.y < 1 / 2) {
         if (ball.x - this.centerX > 0) {
           return { x: 1, y: 0 };
         } else {
           return { x: -1, y: 0 };
         }
       }
-      if (dist.y <= 1) {
+      if (dist.y <= 1 && dist.x < 1 / 2) {
         if (ball.y - this.centerY > 0) {
           return { x: 0, y: 1 };
         } else {

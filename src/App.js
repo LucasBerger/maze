@@ -3,12 +3,18 @@ import { useEffect, useRef, useState } from "react";
 import { Game } from "./game/game";
 
 const stage = `
-B__W_W
-___WWW
-W____W
-W__W_W
-W__WWW
-WWWWWW
+WWWWWWWWWWWW
+WB_W_____WWW
+W__W_______W
+W__W_______W
+W__W__WWW__W
+W__W___W___W
+W__W___W__WW
+W__WWWWW___W
+W__________W
+W__________W
+W__W__W____W
+WWWWWWWWWWWW
 `;
 
 // const stage = `
@@ -20,8 +26,8 @@ WWWWWW
 // WWWWWW
 // `;
 
-const width = 6;
-const height = 6;
+const width = 12;
+const height = 12;
 
 const gravity = 15;
 
