@@ -2,6 +2,7 @@ export class Game {
   ball;
   board;
   ended = false;
+  won = false;
 
   constructor(width, height, stage) {
     const ballPos = stage.replaceAll("\n", "").indexOf("B");
@@ -27,6 +28,10 @@ export class Game {
     if (this.ball.gone) {
       this.ended = true;
     }
+    if (this.ball.goal) {
+      this.won = true;
+      this.ended = true;
+    }
   }
 
   getState() {
@@ -34,6 +39,7 @@ export class Game {
       ball: this.ball.getState(),
       board: this.board.getState(),
       ended: this.ended,
+      won: this.won,
     };
   }
 }
@@ -46,6 +52,7 @@ export class Ball {
   ax = 0;
   ay = 0;
   gone = false;
+  goal = false;
 
   constructor(x, y) {
     this.x = x;
@@ -99,6 +106,23 @@ export class Obstacle {
   }
 
   static reset() {}
+}
+
+export class Goal extends Obstacle {
+  static symbol = "G";
+
+  /**
+   * interact with a ball
+   * @param {Ball} ball - The ball to interact with.
+   * @param {number} dt - time past since last render
+   */
+  interact(ball, dt) {
+    const dist = Math.sqrt(distSq(ball, this));
+    if (dist < 1) {
+      ball.goal = true;
+      return true;
+    }
+  }
 }
 
 export class Hole extends Obstacle {
@@ -269,6 +293,7 @@ export class Wall extends Obstacle {
 const validObstacles = {
   [Wall.symbol]: Wall,
   [Hole.symbol]: Hole,
+  [Goal.symbol]: Goal,
 };
 
 export class Board {

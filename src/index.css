@@ -17,7 +17,8 @@ code {
   width: 500px;
   height: 500px;
   position: relative;
-  margin:auto
+  margin:auto;
+  border: 10px solid #fff;
 }
 
 .obstacle-W {
@@ -29,6 +30,25 @@ code {
   background-color: black;
   border-radius: 50%;
 }
+
+.obstacle-G {
+  background-color: green;
+  border-radius: 50%;
+}
+
+.screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #00000080;
+  color: #fff;
+  font-size: xx-large;
+  text-align: center;
+  padding: auto;
+}
+
 
 .ball {
   background-color: blue;

@@ -2,14 +2,14 @@ import "./App.css";
 import { useEffect, useRef, useState } from "react";
 import { Game } from "./game/game";
 
-const stage = `
+const stage1 = `
 WWWWWWWWWWWW
 WB_W____HWWW
 W__W__H____W
 W__W_______W
 W_HW_HWWW__W
 W__W___WH__W
-W__W___W__WW
+W__W__GW__WW
 WH_WWWWW___W
 W__________W
 W___H______W
@@ -17,12 +17,14 @@ W__W__WHHHHW
 WWWWWWWWWWWW
 `;
 
+const stages = [stage1];
+
 const width = 12;
 const height = 12;
 
 const gravity = 15;
 
-const globalGame = new Game(width, height, stage);
+const globalGame = new Game(width, height, stage1);
 
 function App() {
   const game = useRef(globalGame);
@@ -30,19 +32,29 @@ function App() {
     ball: { x: 0, y: 0 },
     board: { obstacles: [] },
     ended: false,
+    won: false,
   });
   const [control, setControl] = useState({ x: 0, y: 0 });
+  const [stop, setStop] = useState(false);
+  const [currentStage, setCurrentStage] = useState(1);
+  const interval = useRef(undefined);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      game.current.update(0.01);
-      setGameState(game.current.getState());
-    }, 10);
+    if (!stop) {
+      interval.current = setInterval(() => {
+        game.current.update(0.01);
+        setGameState(game.current.getState());
+      }, 10);
+    } else {
+      clearInterval(interval.current);
+    }
 
     return () => {
-      clearInterval(interval);
+      if (interval.current) {
+        clearInterval(interval.current);
+      }
     };
-  }, []);
+  }, [stop]);
 
   const keydown = (event) => {
     if (event.repeat) return;
@@ -98,12 +110,24 @@ function App() {
 
   useEffect(() => {
     if (gameState.ended) {
-      game.current = new Game(width, height, stage);
+      setStop(true);
+      let nextStage = currentStage;
+      if (gameState.won) {
+        nextStage = currentStage + 1;
+        setCurrentStage(nextStage);
+      }
+      setTimeout(() => {
+        if (stages.length > nextStage - 1) {
+          game.current = new Game(width, height, stages[nextStage - 1]);
+          setStop(false);
+        }
+      }, 1000);
     }
   }, [gameState]);
 
   return (
     <div className="App">
+      Level {currentStage}
       <div
         className="board"
         style={{
@@ -134,6 +158,10 @@ function App() {
             ></div>
           );
         })}
+        {stages.length < currentStage && <div className="screen">You Won</div>}
+        {gameState.ended && !gameState.won && (
+          <div className="screen">You Lost</div>
+        )}
       </div>
     </div>
   );
