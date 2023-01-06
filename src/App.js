@@ -167,7 +167,9 @@ function App() {
 
   return (
     <div className="App">
-      <p className="level">Level {currentStage}</p>
+      <p className="level">
+        {stages.length < currentStage ? "You Won!" : "Level " + currentStage}
+      </p>
       <div
         className="board"
         style={{
