@@ -1,3 +1,7 @@
+html {
+  height: 100%
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -5,35 +9,77 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  height: 100%;
+  background-color: #FAF8F1;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+#root {
+  height: 100%;
+}
+.App {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  align-items: center;
+}
+
+.level {
+  font-size: 32px;
+  font-weight: 700;
+  color: #3C2A21;
+  margin-top: 10;
+  margin-bottom: 0;
 }
 
 .board {
-  display: grid;
-  width: 500px;
-  height: 500px;
   position: relative;
-  margin:auto;
-  border: 10px solid #fff;
+  display: grid;
+  background-color: #FAEAB1;
+  box-sizing: border-box;
+  border: 10px solid #C58940;
+}
+
+@media screen and (max-width: 600px) {
+  .board {
+    width: 100%;
+    aspect-ratio: 1/1;
+  }
+}
+
+@media screen and (min-width: 601px) {
+  .board {
+    width: 500px;
+    height: 500px;
+    margin:auto;
+  }
 }
 
 .obstacle-W {
-  background-color: red
+  background-color: #E5BA73;
 }
 
 .obstacle-H {
   margin: 10%;
-  background-color: black;
+  background-color: #3C2A21;
   border-radius: 50%;
 }
 
 .obstacle-G {
-  background-color: green;
+  background-color: rgb(28, 240, 8);
+
+  border: 3px solid rgb(18, 153, 6);
   border-radius: 50%;
+}
+
+.request-button {
+  background-color: #E5BA73;
+  border-style: none;
+  font-size: 32px;
+  border-radius: 1em;
+  width: 300px;
+  color: #FAF8F1;
+  box-shadow: #C58940 5px 5px;
 }
 
 .screen {
@@ -51,7 +97,7 @@ code {
 
 
 .ball {
-  background-color: blue;
+  background-color: lightgray;
   border-radius: 50%;
   position: absolute;
 }

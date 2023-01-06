@@ -95,12 +95,36 @@ function App() {
     }
   };
 
+  const handleOrientation = (event) => {
+    const beta = event.beta;
+    const gamma = event.gamma;
+    setControl({ x: gamma * 3, y: beta * 3 });
+  };
+
+  const setupOrientation = () => {
+    if (window.DeviceOrientationEvent) {
+      DeviceOrientationEvent.requestPermission()
+        .then((permissionState) => {
+          if (permissionState === "granted") {
+            window.addEventListener(
+              "deviceorientation",
+              handleOrientation,
+              true
+            );
+          }
+        })
+        .catch(console.error);
+    }
+  };
+
   useEffect(() => {
     document.addEventListener("keydown", keydown);
     document.addEventListener("keyup", keyup);
+
     return () => {
       document.removeEventListener("keydown", keydown);
       document.removeEventListener("keyup", keyup);
+      window.removeEventListener("deviceorientation", handleOrientation, true);
     };
   }, []);
 
@@ -123,11 +147,12 @@ function App() {
         }
       }, 1000);
     }
+    // eslint-disable-next-line
   }, [gameState]);
 
   return (
     <div className="App">
-      Level {currentStage}
+      <p className="level">Level {currentStage}</p>
       <div
         className="board"
         style={{
@@ -163,6 +188,15 @@ function App() {
           <div className="screen">You Lost</div>
         )}
       </div>
+      {(window.DeviceOrientationEvent?.requestPermission ?? false) && (
+        <button
+          onClick={setupOrientation}
+          className={"request-button"}
+          style={{ marginBottom: 50 }}
+        >
+          Orientation Control
+        </button>
+      )}
     </div>
   );
 }
