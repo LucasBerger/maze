@@ -17,7 +17,22 @@ W__W__WHHHHW
 WWWWWWWWWWWW
 `;
 
-const stages = [stage1];
+const stage2 = `
+WWWWWWWWWWWW
+WHHHHHHHHHHW
+WH____HHHHHW
+WH_B______HW
+WH____HH__HW
+WHHHHHHH__HW
+W___H_____HW
+WH______HHHW
+W__H__HHHHHW
+W_________HW
+WHHHH____GHW
+WWWWWWWWWWWW
+`;
+
+const stages = [stage1, stage2];
 
 const width = 12;
 const height = 12;
